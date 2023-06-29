@@ -15,4 +15,19 @@ export class RecipeDatabase extends BaseDatabase {
                 author_id: recipe.author_id
             }).into(RecipeDatabase.TABLE_NAME)
     }
+
+    public getRecipeById = async(id: string)=>{
+        const searchResult = await RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
+        .select('*')
+        .where({id})
+
+        const recipeResult = {
+            id: searchResult[0].id,
+            title: searchResult[0].title,
+            description: searchResult[0].description,
+            deadline: searchResult[0].deadline,
+            authorId: searchResult[0].author_id
+        }
+        return recipeResult
+    }
 }
