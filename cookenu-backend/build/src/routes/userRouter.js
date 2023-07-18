@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.userRouter = void 0;
+const express_1 = __importDefault(require("express"));
+const UserBusiness_1 = require("../business/UserBusiness");
+const UserDatabase_1 = require("../data/UserDatabase");
+const HashManager_1 = require("../services/HashManager");
+const IdGenerator_1 = require("../services/IdGenerator");
+const TokenGenerator_1 = require("../services/TokenGenerator");
+const UserController_1 = require("../controller/UserController");
+exports.userRouter = express_1.default.Router();
+const userBusiness = new UserBusiness_1.UserBusiness(new IdGenerator_1.IdGenerator(), new TokenGenerator_1.TokenGenerator(), new HashManager_1.HashManager(), new UserDatabase_1.UserDatabase());
+const userController = new UserController_1.UserController(userBusiness);
+exports.userRouter.post("/signup", userController.signup);
+exports.userRouter.post("/login", userController.login);
+exports.userRouter.get("/allUsers", userController.allUsers);
+exports.userRouter.get("/getUser/:token", userController.getUser);
+// userRouter.put("/edit/:id", userController.editUser);

@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.recipeRouter = void 0;
+const express_1 = __importDefault(require("express"));
+const RecipesBusiness_1 = require("../business/RecipesBusiness");
+const RecipesDatabase_1 = require("../data/RecipesDatabase");
+const RecipesController_1 = require("../controller/RecipesController");
+const IdGenerator_1 = require("../services/IdGenerator");
+const TokenGenerator_1 = require("../services/TokenGenerator");
+exports.recipeRouter = express_1.default.Router();
+const tokenGenerator = new TokenGenerator_1.TokenGenerator();
+const idGenerator = new IdGenerator_1.IdGenerator();
+const recipeDatabase = new RecipesDatabase_1.RecipeDatabase();
+const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(recipeDatabase, idGenerator, tokenGenerator);
+const recipeController = new RecipesController_1.RecipesController(recipeBusiness, idGenerator);
+exports.recipeRouter.post("/createRecipe", recipeController.createRecipeController);
+exports.recipeRouter.get("/:title", recipeController.getRecipeById);

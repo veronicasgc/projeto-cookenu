@@ -1,0 +1,35 @@
+
+POST http://localhost:3003/recipe/createRecipe
+Content-Type: application/json
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhmOThkOTc3LTUyZDctNDQxZi04YTQ2LTY5NjRjZWRiYzgzZSIsInJvbGUiOiJOT1JNQUwiLCJpYXQiOjE2ODk2Mzk3NTYsImV4cCI6MTY4OTY0MzM1Nn0.MgjiFTXxfzcm1iDG1fe7bOzu30jTXqvUdiN_toj4jcQ
+
+{
+  "title": "Cuscuz nordestino com queijo",
+  "description": "Ingredientes: 2 xícaras (chá) de Flocos de milho para cuscuz,1 copo de Água,200 gramas de Queijo Muçarela,Sal refinado à gosto. Como fazer: Em uma vasilha adicione os flocos de milho e umedeça com a água e acrescente o sal. Deixe descansar por 5 minutos. Em seguida, coloque água na cuscuzeira e transfira o flocos umedecido para a cuscuzeira intercalando com os pedaços de queijo. Cozinhe por cerca de 10 minutos. Sirva quente com manteiga e ovos."
+}
+
+
+//cadastrar usuário
+POST http://localhost:3003/user/signup
+Content-Type: application/json
+
+{
+    "name": "Vanessa",
+    "email": "nessa@email.com",
+    "password": "nessa123",
+    "role": "NORMAL"
+}
+
+//listar todos usuários cadastrados
+GET http://localhost:3003/user/allUsers
+Content-Type: application/json
+
+//logar usuário
+POST http://localhost:3003/user/login
+Content-Type: application/json
+
+{
+"email":"gigi@email.com",
+"password":"gigi123"
+
+}

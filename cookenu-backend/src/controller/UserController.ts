@@ -40,16 +40,28 @@ export class UserController {
     }
   };
 
+//pegar todos usuários existentes
+public allUsers = async (req: Request, res: Response) => {
+  try {
+    
+  const result=  await this.userBusiness.allUsers();
+
+    res.status(201).send(result)
+  } catch (error: any) {
+    res.status(400).send(error.message);
+  }
+};
+
 //PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
-  // public getUser = async (req: Request, res: Response) => {
-  //   try {
-  //     const input = {token: req.headers.authorization as string};
+  public getUser = async (req: Request, res: Response) => {
+    try {
+      const token = req.params.token as string
 
-  //     await this.userBusiness.getUser(input);
+    const result=  await this.userBusiness.getUser(token);
 
-  //     res.status(201).send({ message: "Usuário alterado!" });
-  //   } catch (error: any) {
-  //     res.status(400).send(error.message);
-  //   }
-  // };
+      res.status(201).send(result)
+    } catch (error: any) {
+      res.status(400).send(error.message);
+    }
+  };
 }

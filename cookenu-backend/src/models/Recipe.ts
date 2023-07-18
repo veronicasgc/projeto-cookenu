@@ -2,13 +2,13 @@ export type Recipe = {
     id: string,
     title: string,
     description: string,
-    deadline: string,
-    author_id: string
+    deadline: Date,
+    authorId: string
 }
 
 export interface RecipeInputDTO {
     title: string,
     description: string,
-    deadline: string
-    
+    deadline: Date,
+    authorId:string
 }

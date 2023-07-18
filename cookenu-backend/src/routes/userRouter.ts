@@ -19,4 +19,6 @@ const userController = new UserController(userBusiness);
 
 userRouter.post("/signup", userController.signup);
 userRouter.post("/login", userController.login);
+userRouter.get("/allUsers", userController.allUsers)
+userRouter.get("/getUser/:token", userController.getUser)
 // userRouter.put("/edit/:id", userController.editUser);

@@ -1,9 +1,10 @@
 import { UserDatabase } from "../data/UserDatabase";
-import {CustomError, InvalidEmail, InvalidName,InvalidPassword, Unauthorized, UserNotFound,InvalidRole} from "../error/CustomError";
-import { UserInputDTO, user, EditUserInputDTO, EditUserInput, LoginInputDTO, UserRole} from "../models/User";
+import {CustomError, InvalidEmail, InvalidName,InvalidPassword, UserNotFound,InvalidRole} from "../error/CustomError";
+import { UserInputDTO, user, LoginInputDTO, UserRole} from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGeneratorInterface } from "../services/IdGenerator";
 import { TokenGenerator } from "../services/TokenGenerator";
+
 
 export class UserBusiness {
   constructor(
@@ -99,15 +100,25 @@ export class UserBusiness {
     }
   };
 
- //PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
-  // public getUser = async (input: EditUserInputDTO) => {
-  //   try {
- 
-     
+//pegar todos usuários existentes
+public allUsers = async () => {
+  try {
+    const result = await this.userDatabase.allUsers();
+    return result;
 
-   
-  //   } catch (error: any) {
-  //     throw new CustomError(400, error.message);
-  //   }
-  // };
+  } catch (error: any) {
+    throw new CustomError(400, error.message);
+  }
+};
+
+
+//  PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
+public getUser = async (token: string) => {
+  try {
+    const result = await this.userDatabase.getUser(token);
+    return result;
+  } catch (error: any) {
+    throw new CustomError(400, error.message);
+  }
+};
 }

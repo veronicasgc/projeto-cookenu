@@ -1,33 +1,38 @@
-import { Recipe } from "../models/Recipe"
-import { BaseDatabase } from "./BaseDatabase"
+import { CustomError } from "../error/CustomError";
+import { Recipe } from "../models/Recipe";
+import { TokenGenerator } from "../services/TokenGenerator";
+import { BaseDatabase } from "./BaseDatabase";
 
 export class RecipeDatabase extends BaseDatabase {
-    
-    private static TABLE_NAME = "Recipes_table"
+  generateId() {
+    throw new Error("Method not implemented.");
+  }
+  private static TABLE_NAME = "Recipes_table";
 
-    public createRecipe = async(recipe: Recipe) =>{
-        await RecipeDatabase.connection()
-            .insert({
-                id: recipe.id,
-                title: recipe.title,
-                description: recipe.description,
-                deadline: recipe.deadline,
-                author_id: recipe.author_id
-            }).into(RecipeDatabase.TABLE_NAME)
+  public createRecipe = async (
+    recipe: Recipe) => {
+    try {
+      await RecipeDatabase.connection.queryBuilder()
+      .insert(recipe)
+      .into(RecipeDatabase.TABLE_NAME);
+    } catch (error: any) {
+      throw new CustomError(400, error.message);
     }
+  };
 
-    public getRecipeById = async(id: string)=>{
-        const searchResult = await RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
-        .select('*')
-        .where({id})
+  public getRecipeById = async (title: string) => {
+    const searchResult = await RecipeDatabase.connection(
+      RecipeDatabase.TABLE_NAME
+    )
+      .select("*")
+      .where({ title });
 
-        const recipeResult = {
-            id: searchResult[0].id,
-            title: searchResult[0].title,
-            description: searchResult[0].description,
-            deadline: searchResult[0].deadline,
-            authorId: searchResult[0].author_id
-        }
-        return recipeResult
-    }
+    const recipeResult = {
+      title: searchResult[0].title,
+      description: searchResult[0].description,
+      deadline: searchResult[0].deadline,
+      authorId: searchResult[0].author_id,
+    };
+    return recipeResult;
+  };
 }
