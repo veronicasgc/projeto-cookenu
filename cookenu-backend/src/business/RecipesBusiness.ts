@@ -1,66 +1,52 @@
 import { RecipeDatabase } from "../data/RecipesDatabase";
 import { Recipe, RecipeInputDTO } from "../models/Recipe";
-import { RecipeNotCreated, CustomError } from "../error/CustomError";
-import { IdGeneratorInterface } from "../services/IdGenerator";
+import { CustomError } from "../error/CustomError";
+import { IdGenerator } from "../services/IdGenerator";
 import { TokenGenerator } from "../services/TokenGenerator";
-import { AuthenticationData } from "../models/User";
-
+import { MissingFieldsToComplete } from "../error/MissingFieldsComplete";
+import { InvalidToken } from "../error/CustomErrorToken";
 
 export class RecipeBusiness {
   constructor(
     private readonly recipeDatabase: RecipeDatabase,
-    private readonly idGenerator: IdGeneratorInterface,
+    private readonly idGenerator: IdGenerator,
     private readonly tokenGenerator: TokenGenerator
-   
-  ){}
+  ) {}
 
-
-
-  public createRecipe = async (token: string, recipe: Recipe): Promise<void>  => {
+  public createRecipe = async (input: RecipeInputDTO, token: string) => {
     try {
+      const authenticatorData = this.tokenGenerator.tokenData(token);
 
-        // Verificar se o token está presente e no formato correto
-        if (!token || !token.startsWith("Bearer ")) {
-          throw new Error("Token de autorização ausente ou formato inválido");
-        }
-  
-        // Extrair o token sem o prefixo "Bearer "
-        const tokenWithoutPrefix = token.slice(7);
-  
-        // Validar e extrair os dados do token
-        const tokenData = this.tokenGenerator.tokenData(tokenWithoutPrefix);
-  
-        // Verificar se o usuário está logado
-        if (!tokenData.id) {
-          throw new Error("Usuário não autenticado");
-        }
-  
-        // Definir a data atual para a propriedade "deadline" do objeto "recipe"
-        recipe.deadline = new Date();
+      if (!token) {
+        throw new InvalidToken();
+      }
 
-  
-        // Atribuir o ID do usuário logado para a propriedade "author_id" do objeto "recipe"
-        recipe.authorId = tokenData.id;
-  
-       
-    
-     
-             
-      const result = await this.recipeDatabase.createRecipe(recipe);
-      return result
-     
+      if (!input.title || !input.description) {
+        throw new MissingFieldsToComplete();
+      }
+      
+      await this.recipeDatabase.createRecipe(
+        Recipe.toRecipe({
+          ...input,
+          id: this.idGenerator.generateId(),
+          deadline: new Date(),
+          authorId: authenticatorData.id,
+        })
+      );
     } catch (error: any) {
       throw new CustomError(400, error.message);
     }
   };
 
-  public getRecipeById = async (title: string) => {
+  public getRecipe = async (id: string, token: string) => {
     try {
-      const result = await this.recipeDatabase.getRecipeById(title);
-    return result;
-    } catch (error:any) {
-      throw new CustomError(400, error.message); ;
+      
+      const result = await this.recipeDatabase.getRecipe(id);
+      return result;
+    } catch (error: any) {
+      throw new CustomError(400, error.message);
     }
   };
-  
+
+
 }

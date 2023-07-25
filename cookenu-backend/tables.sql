@@ -27,6 +27,12 @@ CREATE TABLE IF NOT EXISTS Users_signup (
     FOREIGN KEY (signup_id) REFERENCES Cookenu_users(id)
 );
 
+CREATE TABLE IF NOT EXISTS Friendships (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id_1 UUID NOT NULL REFERENCES Cookenu_users(id),
+  user_id_2 UUID NOT NULL REFERENCES Cookenu_users(id),
+  status VARCHAR(10) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACCEPTED'))
+);
 
 
 

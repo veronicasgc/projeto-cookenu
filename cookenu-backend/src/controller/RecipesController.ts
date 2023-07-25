@@ -1,46 +1,60 @@
 import { Request, Response } from "express";
 import { RecipeBusiness } from "../business/RecipesBusiness";
 import { Recipe, RecipeInputDTO } from "../models/Recipe";
-import { IdGeneratorInterface } from "../services/IdGenerator";
+import { IdGenerator } from "../services/IdGenerator";
+import { RecipeDatabase } from "../data/RecipesDatabase";
+import { TokenGenerator } from "../services/TokenGenerator";
 
 export class RecipesController {
-  constructor(private readonly recipeBusiness: RecipeBusiness,
-     private readonly idGenerator: IdGeneratorInterface) {}
-
-  public createRecipeController = async (req: Request, res: Response): Promise<void> => {
+  public createRecipeController = async (req: Request, res: Response) => {
     try {
-     
-      const token = req.headers.authorization || "";
-      const { title, description } = req.body;
-    
-      const recipe: Recipe = {
-        id: this.idGenerator.generateId(), 
-        title,
-        description,
-        deadline: new Date(),
-        authorId: ""
+      const input: RecipeInputDTO = {
+        title: req.body.title,
+        description: req.body.description,
       };
 
-      await this.recipeBusiness.createRecipe(token, recipe);
+      const recipeBusiness = new RecipeBusiness(
+        new RecipeDatabase,
+        new IdGenerator,
+        new TokenGenerator
+      );
 
-      res.status(201).send({ message: "Receita adicionada com sucesso!" });
-    } catch (error) {
-        res.status(400).send(error);
-    }
-  };
+      await recipeBusiness.createRecipe(
+        input,
+        req.headers.authorization as string
+      );
 
-  public getRecipeById = async (req: Request, res: Response) => {
-    try {
-        const title = req.query.title as string;
-     
-        if(!title){
-          res.status(404).send({ message: "Recipe not found!" });
-        }
-        const result = await this.recipeBusiness.getRecipeById(title)
-
-        res.status(200).send(result);        
+      res.status(201).send({ message: "Receita criada com sucesso!" });
     } catch (error) {
       res.status(400).send(error);
     }
-  }
+  };
+
+  public getRecipe = async (req: Request, res: Response) => {
+    try {
+
+      const id = req.params.id as string;
+
+      if (!id) {
+        res.status(404).send({ message: "Recipe not found!" });
+      }
+      const recipeBusiness = new RecipeBusiness(
+        new RecipeDatabase,
+        new IdGenerator,
+        new TokenGenerator
+      );
+    
+    const result = await recipeBusiness.getRecipe(
+           id ,req.headers.authorization as string
+      );
+
+
+      res.status(200).send(result);
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  };
+
+
+
 }

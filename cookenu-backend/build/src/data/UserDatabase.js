@@ -16,7 +16,6 @@ const BaseDatabase_1 = require("./BaseDatabase");
 class UserDatabase extends BaseDatabase_1.BaseDatabase {
     constructor() {
         super(...arguments);
-        //signup
         this.insertUser = (user) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield UserDatabase.connection.queryBuilder()
@@ -33,7 +32,6 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        //login
         this.findUser = (email) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield UserDatabase.connection(UserDatabase.TABLE_NAME)
@@ -45,19 +43,6 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        //find user by name
-        this.findUserByName = (name) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const result = yield UserDatabase.connection(UserDatabase.TABLE_NAME)
-                    .select()
-                    .where({ name });
-                return result[0];
-            }
-            catch (error) {
-                throw new CustomError_1.CustomError(400, error.message);
-            }
-        });
-        //get all users
         this.allUsers = () => __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield UserDatabase.connection(UserDatabase.TABLE_NAME)
@@ -68,7 +53,6 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        //PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
         this.getUser = (token) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const tokenGenerator = new TokenGenerator_1.TokenGenerator();

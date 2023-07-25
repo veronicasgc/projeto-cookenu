@@ -18,17 +18,23 @@ class RecipeDatabase extends BaseDatabase_1.BaseDatabase {
         this.createRecipe = (recipe) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield RecipeDatabase.connection.queryBuilder()
-                    .insert(recipe)
+                    .insert({
+                    id: recipe.getId(),
+                    title: recipe.getTitle(),
+                    description: recipe.getDescription(),
+                    deadline: recipe.getDeadline(),
+                    author_id: recipe.getAuthorId(),
+                })
                     .into(RecipeDatabase.TABLE_NAME);
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getRecipeById = (title) => __awaiter(this, void 0, void 0, function* () {
+        this.getRecipe = (id) => __awaiter(this, void 0, void 0, function* () {
             const searchResult = yield RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
                 .select("*")
-                .where({ title });
+                .where({ id });
             const recipeResult = {
                 title: searchResult[0].title,
                 description: searchResult[0].description,
@@ -38,9 +44,6 @@ class RecipeDatabase extends BaseDatabase_1.BaseDatabase {
             return recipeResult;
         });
     }
-    generateId() {
-        throw new Error("Method not implemented.");
-    }
 }
 exports.RecipeDatabase = RecipeDatabase;
-RecipeDatabase.TABLE_NAME = "Recipes_table";
+RecipeDatabase.TABLE_NAME = "recipes_table";

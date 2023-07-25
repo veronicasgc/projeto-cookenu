@@ -10,35 +10,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecipesController = void 0;
+const RecipesBusiness_1 = require("../business/RecipesBusiness");
+const IdGenerator_1 = require("../services/IdGenerator");
+const RecipesDatabase_1 = require("../data/RecipesDatabase");
+const TokenGenerator_1 = require("../services/TokenGenerator");
 class RecipesController {
-    constructor(recipeBusiness, idGenerator) {
-        this.recipeBusiness = recipeBusiness;
-        this.idGenerator = idGenerator;
+    constructor() {
         this.createRecipeController = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = req.headers.authorization || "";
-                const { title, description } = req.body;
-                const recipe = {
-                    id: this.idGenerator.generateId(),
-                    title,
-                    description,
-                    deadline: new Date(),
-                    authorId: ""
+                const input = {
+                    title: req.body.title,
+                    description: req.body.description,
                 };
-                yield this.recipeBusiness.createRecipe(token, recipe);
-                res.status(201).send({ message: "Receita adicionada com sucesso!" });
+                const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
+                yield recipeBusiness.createRecipe(input, req.headers.authorization);
+                res.status(201).send({ message: "Receita criada com sucesso!" });
             }
             catch (error) {
                 res.status(400).send(error);
             }
         });
-        this.getRecipeById = (req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getRecipe = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const title = req.query.title;
-                if (!title) {
+                const id = req.params.id;
+                if (!id) {
                     res.status(404).send({ message: "Recipe not found!" });
                 }
-                const result = yield this.recipeBusiness.getRecipeById(title);
+                const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
+                const result = yield recipeBusiness.getRecipe(id, req.headers.authorization);
                 res.status(200).send(result);
             }
             catch (error) {

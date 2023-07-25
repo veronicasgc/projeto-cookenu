@@ -17,8 +17,8 @@ const userBusiness = new UserBusiness(
 
 const userController = new UserController(userBusiness);
 
-userRouter.post("/signup", userController.signup);
-userRouter.post("/login", userController.login);
-userRouter.get("/allUsers", userController.allUsers)
-userRouter.get("/getUser/:token", userController.getUser)
+userRouter.post("/signup",(req, res)=> userController.signup(req,res));
+userRouter.post("/login",(req, res)=> userController.login(req,res));
+userRouter.get("/allUsers",(req, res)=> userController.allUsers(req,res))
+userRouter.get("/getUser",(req, res)=> userController.getUser(req,res))
 // userRouter.put("/edit/:id", userController.editUser);

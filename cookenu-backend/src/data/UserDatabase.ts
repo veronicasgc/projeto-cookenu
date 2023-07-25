@@ -7,7 +7,7 @@ export class UserDatabase extends BaseDatabase {
 
   private static TABLE_NAME = "cookenu_users";
 
-   //signup
+
   public insertUser = async (user: user) => {
     try {
       await UserDatabase.connection.queryBuilder()
@@ -24,7 +24,7 @@ export class UserDatabase extends BaseDatabase {
     }
   };
   
-  //login
+  
   public findUser = async (email: string) => {
     try {
       const result = await UserDatabase.connection(UserDatabase.TABLE_NAME)
@@ -37,20 +37,8 @@ export class UserDatabase extends BaseDatabase {
     }
   };
 
-  //find user by name
-  public findUserByName = async (name: string) => {
-    try {
-      const result = await UserDatabase.connection(UserDatabase.TABLE_NAME)
-      .select()
-      .where({ name });
+ 
 
-    return result[0];
-    } catch (error: any) {
-      throw new CustomError(400, error.message);
-      
-    }
-  }
- //get all users
    public allUsers = async () => {
     try {
       const result = await UserDatabase.connection(UserDatabase.TABLE_NAME)
@@ -63,7 +51,7 @@ export class UserDatabase extends BaseDatabase {
     }
   };
 
-  //PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
+
   public getUser = async (token: string) => {
     try {
       const tokenGenerator = new TokenGenerator()

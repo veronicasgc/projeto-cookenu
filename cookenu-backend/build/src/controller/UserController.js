@@ -56,7 +56,7 @@ class UserController {
         //PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
         this.getUser = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = req.params.token;
+                const token = req.headers.token;
                 const result = yield this.userBusiness.getUser(token);
                 res.status(201).send(result);
             }

@@ -55,7 +55,7 @@ public allUsers = async (req: Request, res: Response) => {
 //PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
   public getUser = async (req: Request, res: Response) => {
     try {
-      const token = req.params.token as string
+      const token = req.headers.token as string
 
     const result=  await this.userBusiness.getUser(token);
 

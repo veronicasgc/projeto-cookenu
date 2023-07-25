@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserBusiness = void 0;
 const CustomError_1 = require("../error/CustomError");
+const CustomErrorUser_1 = require("../error/CustomErrorUser");
+const MissingFieldsComplete_1 = require("../error/MissingFieldsComplete");
 const User_1 = require("../models/User");
 class UserBusiness {
     constructor(idGenerator, tokenGenerator, hashManager, userDatabase) {
@@ -26,16 +28,16 @@ class UserBusiness {
                     throw new CustomError_1.CustomError(400, 'Preencha os campos "name", "email", "password" e "role"');
                 }
                 if (name.length < 4) {
-                    throw new CustomError_1.InvalidName();
+                    throw new CustomErrorUser_1.InvalidName();
                 }
                 if (password.length < 6) {
-                    throw new CustomError_1.InvalidPassword();
+                    throw new CustomErrorUser_1.InvalidPassword();
                 }
                 if (!email.includes("@")) {
-                    throw new CustomError_1.InvalidEmail();
+                    throw new CustomErrorUser_1.InvalidEmail();
                 }
                 if (role !== "NORMAL" && role !== "ADMIN") {
-                    throw new CustomError_1.InvalidRole();
+                    throw new CustomErrorUser_1.InvalidRole();
                 }
                 if (role !== "NORMAL" && role !== "ADMIN") {
                     role = "NORMAL";
@@ -49,6 +51,9 @@ class UserBusiness {
                     password: hashPassword,
                     role: User_1.UserRole[role]
                 };
+                // if (user.email === email) {
+                //   throw new CustomError(400,'Email já cadastrado!');;
+                // }
                 yield this.userDatabase.insertUser(user);
                 const token = this.tokenGenerator.generateToken(id, user.role);
                 return token;
@@ -61,18 +66,18 @@ class UserBusiness {
             try {
                 const { email, password } = input;
                 if (!email || !password) {
-                    throw new CustomError_1.CustomError(400, 'Preencha os campos"email" e "password"');
+                    throw new MissingFieldsComplete_1.MissingFieldsToComplete();
                 }
                 if (!email.includes("@")) {
-                    throw new CustomError_1.InvalidEmail();
+                    throw new CustomErrorUser_1.InvalidEmail();
                 }
                 const user = yield this.userDatabase.findUser(email);
                 if (!user) {
-                    throw new CustomError_1.UserNotFound();
+                    throw new CustomErrorUser_1.UserNotFound();
                 }
                 const isValidPassword = yield this.hashManager.compare(password, user.password);
                 if (!isValidPassword) {
-                    throw new CustomError_1.InvalidPassword();
+                    throw new CustomErrorUser_1.InvalidPassword();
                 }
                 const token = this.tokenGenerator.generateToken(user.id, user.role);
                 return token;
@@ -95,6 +100,10 @@ class UserBusiness {
         this.getUser = (token) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this.userDatabase.getUser(token);
+                //  VERIFICAÇÃO NÃO FUNCIONA
+                // if(!token){
+                //   throw new UserNotFound
+                // }
                 return result;
             }
             catch (error) {

@@ -1,31 +1,32 @@
 import { CustomError } from "../error/CustomError";
 import { Recipe } from "../models/Recipe";
-import { TokenGenerator } from "../services/TokenGenerator";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class RecipeDatabase extends BaseDatabase {
-  generateId() {
-    throw new Error("Method not implemented.");
-  }
-  private static TABLE_NAME = "Recipes_table";
+  private static TABLE_NAME = "recipes_table";
 
-  public createRecipe = async (
-    recipe: Recipe) => {
+  public createRecipe = async (recipe: Recipe): Promise<void> => {
     try {
       await RecipeDatabase.connection.queryBuilder()
-      .insert(recipe)
-      .into(RecipeDatabase.TABLE_NAME);
+        .insert({
+          id: recipe.getId(),
+          title: recipe.getTitle(),
+          description: recipe.getDescription(),
+          deadline: recipe.getDeadline(),
+          author_id: recipe.getAuthorId(),
+        })
+        .into(RecipeDatabase.TABLE_NAME);
     } catch (error: any) {
       throw new CustomError(400, error.message);
     }
   };
 
-  public getRecipeById = async (title: string) => {
+  public getRecipe = async (id: string) => {
     const searchResult = await RecipeDatabase.connection(
       RecipeDatabase.TABLE_NAME
     )
       .select("*")
-      .where({ title });
+      .where({ id });
 
     const recipeResult = {
       title: searchResult[0].title,
@@ -35,4 +36,6 @@ export class RecipeDatabase extends BaseDatabase {
     };
     return recipeResult;
   };
+
+
 }

@@ -1,5 +1,7 @@
 import { UserDatabase } from "../data/UserDatabase";
-import {CustomError, InvalidEmail, InvalidName,InvalidPassword, UserNotFound,InvalidRole} from "../error/CustomError";
+import { CustomError } from "../error/CustomError";
+import {InvalidEmail, InvalidName,InvalidPassword, UserNotFound,InvalidRole} from "../error/CustomErrorUser";
+import { MissingFieldsToComplete } from "../error/MissingFieldsComplete";
 import { UserInputDTO, user, LoginInputDTO, UserRole} from "../models/User";
 import { HashManager } from "../services/HashManager";
 import { IdGeneratorInterface } from "../services/IdGenerator";
@@ -36,6 +38,8 @@ export class UserBusiness {
         throw new InvalidEmail();
       }
 
+     
+
       if (role !== "NORMAL" && role !== "ADMIN") {
         throw new InvalidRole();
       }
@@ -56,6 +60,10 @@ export class UserBusiness {
         role: UserRole[role as keyof typeof UserRole]
       };
 
+      // if (user.email === email) {
+      //   throw new CustomError(400,'Email já cadastrado!');;
+      // }
+
       await this.userDatabase.insertUser(user);
       const token = this.tokenGenerator.generateToken(id, user.role);
 
@@ -70,7 +78,7 @@ export class UserBusiness {
       const { email, password } = input;
 
       if (!email || !password) {
-        throw new CustomError(400, 'Preencha os campos"email" e "password"');
+        throw new MissingFieldsToComplete();
       }
 
       if (!email.includes("@")) {
@@ -115,7 +123,12 @@ public allUsers = async () => {
 //  PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
 public getUser = async (token: string) => {
   try {
+   
     const result = await this.userDatabase.getUser(token);
+  //  VERIFICAÇÃO NÃO FUNCIONA
+    // if(!token){
+    //   throw new UserNotFound
+    // }
     return result;
   } catch (error: any) {
     throw new CustomError(400, error.message);

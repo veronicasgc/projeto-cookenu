@@ -10,45 +10,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecipeBusiness = void 0;
+const Recipe_1 = require("../models/Recipe");
 const CustomError_1 = require("../error/CustomError");
+const MissingFieldsComplete_1 = require("../error/MissingFieldsComplete");
+const CustomErrorToken_1 = require("../error/CustomErrorToken");
 class RecipeBusiness {
     constructor(recipeDatabase, idGenerator, tokenGenerator) {
         this.recipeDatabase = recipeDatabase;
         this.idGenerator = idGenerator;
         this.tokenGenerator = tokenGenerator;
-        this.createRecipe = (token, recipe) => __awaiter(this, void 0, void 0, function* () {
+        this.createRecipe = (input, token) => __awaiter(this, void 0, void 0, function* () {
             try {
-                // Verificar se o token está presente e no formato correto
-                if (!token || !token.startsWith("Bearer ")) {
-                    throw new Error("Token de autorização ausente ou formato inválido");
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                if (!token) {
+                    throw new CustomErrorToken_1.InvalidToken();
                 }
-                // Extrair o token sem o prefixo "Bearer "
-                const tokenWithoutPrefix = token.slice(7);
-                // Validar e extrair os dados do token
-                const tokenData = this.tokenGenerator.tokenData(tokenWithoutPrefix);
-                // Verificar se o usuário está logado
-                if (!tokenData.id) {
-                    throw new Error("Usuário não autenticado");
+                if (!input.title || !input.description) {
+                    throw new MissingFieldsComplete_1.MissingFieldsToComplete();
                 }
-                // Definir a data atual para a propriedade "deadline" do objeto "recipe"
-                recipe.deadline = new Date();
-                // Atribuir o ID do usuário logado para a propriedade "author_id" do objeto "recipe"
-                recipe.authorId = tokenData.id;
-                const result = yield this.recipeDatabase.createRecipe(recipe);
-                return result;
+                yield this.recipeDatabase.createRecipe(Recipe_1.Recipe.toRecipe(Object.assign(Object.assign({}, input), { id: this.idGenerator.generateId(), deadline: new Date(), authorId: authenticatorData.id })));
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getRecipeById = (title) => __awaiter(this, void 0, void 0, function* () {
+        this.getRecipe = (id, token) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.recipeDatabase.getRecipeById(title);
+                const result = yield this.recipeDatabase.getRecipe(id);
                 return result;
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);
-                ;
             }
         });
     }
