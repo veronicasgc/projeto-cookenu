@@ -120,15 +120,15 @@ public allUsers = async () => {
 };
 
 
-//  PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
 public getUser = async (token: string) => {
   try {
-   
+ 
+    if(!token){
+      throw new UserNotFound
+    }
+     
     const result = await this.userDatabase.getUser(token);
-  //  VERIFICAÇÃO NÃO FUNCIONA
-    // if(!token){
-    //   throw new UserNotFound
-    // }
+  
     return result;
   } catch (error: any) {
     throw new CustomError(400, error.message);

@@ -8,6 +8,6 @@ const recipeController = new RecipesController();
 
 recipeRouter.post("/createRecipe", recipeController.createRecipeController);
 
-recipeRouter.get("/:id",(req, res)=> recipeController.getRecipe(req, res));
+recipeRouter.get("/:recipeId",recipeController.getRecipe);
 
-recipeRouter.get("/allRecipes",recipeController.allRecipes);
+recipeRouter.put("/:id", recipeController.editRecipe)

@@ -9,5 +9,5 @@ const RecipesController_1 = require("../controller/RecipesController");
 exports.recipeRouter = express_1.default.Router();
 const recipeController = new RecipesController_1.RecipesController();
 exports.recipeRouter.post("/createRecipe", recipeController.createRecipeController);
-exports.recipeRouter.get("/:id", (req, res) => recipeController.getRecipe(req, res));
-exports.recipeRouter.get("/allRecipes", recipeController.allRecipes);
+exports.recipeRouter.get("/:recipeId", recipeController.getRecipe);
+exports.recipeRouter.put("/:id", recipeController.editRecipe);

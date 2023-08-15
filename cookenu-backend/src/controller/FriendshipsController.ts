@@ -57,11 +57,9 @@ export class FriendshipsController {
         try {
             const token = req.headers.authorization as string;
   
-        //   const makeFriendship = req.query.makeFriendship as string;
     
-          const friendRecipes = await this.friendshipsBusiness.getFeedFriends(
-            userId, 'deadline', 'asc'
-          );
+          const friendRecipes = await this.friendshipsBusiness.getFeedFriends(token);
+
           res.status(200).send(friendRecipes);
         } catch (error: any) {
           res.status(error.statusCode).send(error.sqlMessage || error.message);

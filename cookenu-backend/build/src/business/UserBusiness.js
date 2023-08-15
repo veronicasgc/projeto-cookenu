@@ -96,14 +96,12 @@ class UserBusiness {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        //  PEGAR ID E EMAIL DO USUÁRIO CADASTRADO ATRAVÉS DO TOKEN FORNECIDO NO LOGIN
         this.getUser = (token) => __awaiter(this, void 0, void 0, function* () {
             try {
+                if (!token) {
+                    throw new CustomErrorUser_1.UserNotFound;
+                }
                 const result = yield this.userDatabase.getUser(token);
-                //  VERIFICAÇÃO NÃO FUNCIONA
-                // if(!token){
-                //   throw new UserNotFound
-                // }
                 return result;
             }
             catch (error) {

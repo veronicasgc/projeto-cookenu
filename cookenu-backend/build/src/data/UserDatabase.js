@@ -72,6 +72,8 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
+        this.addSignupUser = () => __awaiter(this, void 0, void 0, function* () {
+        });
     }
 }
 exports.UserDatabase = UserDatabase;

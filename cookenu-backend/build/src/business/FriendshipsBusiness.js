@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FriendshipsBusiness = void 0;
 const CustomError_1 = require("../error/CustomError");
 const CustomErrorFriend_1 = require("../error/CustomErrorFriend");
+const CustomErrorToken_1 = require("../error/CustomErrorToken");
 class FriendshipsBusiness {
     constructor(friendshipsDatabase, idGenerator, tokenGenerator) {
         this.friendshipsDatabase = friendshipsDatabase;
@@ -54,6 +55,9 @@ class FriendshipsBusiness {
                     throw new Error('Invalid userToFollowId.');
                 }
                 const authenticatorData = this.tokenGenerator.tokenData(token);
+                if (!token) {
+                    throw new CustomErrorToken_1.InvalidToken();
+                }
                 const userId1 = authenticatorData.id;
                 if (userId1 === input.userId2) {
                     throw new CustomErrorFriend_1.invalidYouBeYourFriend();
@@ -79,19 +83,26 @@ class FriendshipsBusiness {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getFeedFriends = (sort, order) => __awaiter(this, void 0, void 0, function* () {
+        this.getFeedFriends = (token) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this.friendshipsDatabase.getFeedFriends(order, sort);
-                // if (getFeedFriend.length < 1) {
-                //   throw new invalidPost();
-                // }
-                // if (!makeFriendship) {
-                //   throw new invalidMakeFriendship();
-                // }
-                return result;
+                if (!token) {
+                    throw new CustomErrorToken_1.InvalidToken();
+                }
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                const userId1 = authenticatorData.id;
+                const result = yield this.friendshipsDatabase.getFeedFriends(userId1);
+                const recipes = result.map((recipe) => ({
+                    id: recipe.id,
+                    title: recipe.title,
+                    description: recipe.description,
+                    deadline: recipe.deadline,
+                    userId: recipe.userId,
+                    userName: recipe.userName,
+                }));
+                return { recipes };
             }
             catch (error) {
-                throw new Error(error.sqlMessage || error.message);
+                throw new CustomError_1.CustomError(error.statusCode || 500, error.message);
             }
         });
     }

@@ -32,16 +32,41 @@ class RecipeDatabase extends BaseDatabase_1.BaseDatabase {
             }
         });
         this.getRecipe = (id) => __awaiter(this, void 0, void 0, function* () {
-            const searchResult = yield RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
-                .select("*")
-                .where({ id });
-            const recipeResult = {
-                title: searchResult[0].title,
-                description: searchResult[0].description,
-                deadline: searchResult[0].deadline,
-                authorId: searchResult[0].author_id,
-            };
-            return recipeResult;
+            try {
+                const searchResult = yield RecipeDatabase.connection.queryBuilder()
+                    .select("*")
+                    .from("recipes_table")
+                    .where('id', id);
+                if (searchResult.length === 0) {
+                    return null; // Retorna null quando a receita não é encontrada
+                }
+                const recipeResult = {
+                    title: searchResult[0].title,
+                    description: searchResult[0].description,
+                    deadline: searchResult[0].deadline,
+                    authorId: searchResult[0].author_id,
+                };
+                return recipeResult;
+            }
+            catch (error) {
+                throw new CustomError_1.CustomError(400, error.message);
+            }
+        });
+        //OLHAR SOBRE O SET DEPOIS DO UPDATE PARA COLOCAR AS INFORMAÇÕES NOVAS DA RECEITA? NA TABELA QUANDO FUI EDITAR APARECEU O UPDATE, SET E WHERE
+        this.updateRecipe = (recipeId, newTitle, newDescription, newDeadline) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
+                    .update({
+                    title: newTitle,
+                    description: newDescription,
+                    deadline: newDeadline
+                })
+                    .where({ id: recipeId })
+                    .into(RecipeDatabase.TABLE_NAME);
+            }
+            catch (error) {
+                throw new CustomError_1.CustomError(400, error.message);
+            }
         });
     }
 }

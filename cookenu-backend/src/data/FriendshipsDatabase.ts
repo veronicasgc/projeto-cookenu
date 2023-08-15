@@ -62,15 +62,28 @@ public updateFriendshipStatus = async (friendshipId: string, status: string): Pr
     }
   };
 
-  public getFeedFriends = async  (sort: string, order: string):Promise<Friend[]> => {
+  public getFeedFriends = async  (userId1: string) => {
     try {
          const friendsRecipes = await FriendshipsDatabase.connection
-        .select("cookenu_users.name as Usuário","recipes_table.title", "recipes_table.description","recipes_table.deadline", "recipes_table.author_id")
+        .select(  "recipes_table.id as id",
+        "recipes_table.title as title",
+        "recipes_table.description as description",
+        "recipes_table.deadline as deadline",
+        "recipes_table.author_id as userId",
+        "cookenu_users.name as userName"
+        )
         .from("friendships")
-        .innerJoin("cookenu_users", "friendships.userid2","cookenu_users.id")
-        .innerJoin("recipes_table", "friendships.userid2","recipes_table.author_id")
-        .where({"friendships.status": "ACCEPTED"})
+
+        .innerJoin("cookenu_users", "friendships.user_id_2","cookenu_users.id")
+
+        .innerJoin("recipes_table", "friendships.user_id_2","recipes_table.author_id")
+
+        .where({
+          "friendships.user_id_1": userId1,
+          "friendships.status": "ACCEPTED"})
+
         .orderBy("recipes_table.deadline", "asc")
+
         .into(FriendshipsDatabase.TABLE_NAME)
 
         return friendsRecipes

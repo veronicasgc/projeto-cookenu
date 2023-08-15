@@ -52,11 +52,9 @@ class FriendshipsController {
         });
         this.getFeedFriends = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const sort = req.query.sort === "user" ? "user" : "user";
-                const order = req.query.order === "DESC" ? "DESC" : "ASC";
-                //   const makeFriendship = req.query.makeFriendship as string;
-                const postFriend = yield this.friendshipsBusiness.getFeedFriends(sort, order);
-                res.status(200).send(postFriend);
+                const token = req.headers.authorization;
+                const friendRecipes = yield this.friendshipsBusiness.getFeedFriends(token);
+                res.status(200).send(friendRecipes);
             }
             catch (error) {
                 res.status(error.statusCode).send(error.sqlMessage || error.message);

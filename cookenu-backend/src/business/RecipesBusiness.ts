@@ -38,15 +38,54 @@ export class RecipeBusiness {
     }
   };
 
-  public getRecipe = async (id: string, token: string) => {
+  public getRecipe = async (id: string, token: string ) => {
     try {
-      
+
+      const authenticatorData = this.tokenGenerator.tokenData(token);
+
+      const userId = authenticatorData.id;
+
+      if(!userId){
+        throw new InvalidToken()
+      }
+         
       const result = await this.recipeDatabase.getRecipe(id);
+
+      if (!result) {
+        throw new Error('Recipe not found.');
+      }
+
       return result;
+      
     } catch (error: any) {
-      throw new CustomError(400, error.message);
+      throw new Error('Error getting recipe: ' + error.message);
     }
   };
+
+  public editRecipe = async(recipeId: string,newTitle: string,newDescription: string, token: string)=> {
+    try {
+      const authenticatorData = this.tokenGenerator.tokenData(token);
+
+      const userId = authenticatorData.id;
+
+      const recipe = await this.recipeDatabase.getRecipe(recipeId)
+
+      if (!recipe) {
+        throw new Error('Receita não encontrada.');
+      }
+
+      if (recipe.authorId !== userId) {
+        throw new Error('Você não tem permissão para editar esta receita.');
+      }
+
+      const newDeadline = new Date()
+
+      await this.recipeDatabase.updateRecipe(recipeId, newTitle, newDescription, newDeadline);
+
+    }catch (error: any) {
+      throw new CustomError(400, error.message)
+    }
+  }
 
 
 }

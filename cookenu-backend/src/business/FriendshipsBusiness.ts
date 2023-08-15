@@ -61,6 +61,12 @@ export class FriendshipsBusiness {
 
      
       const authenticatorData = this.tokenGenerator.tokenData(token);
+
+      
+      if(!token){
+        throw new InvalidToken()
+      }
+
       const userId1 = authenticatorData.id;
       
   
@@ -91,33 +97,30 @@ export class FriendshipsBusiness {
     }
   };
 
- public getFeedFriends = async(userId: string, sort: string, order: string)=> {
+ public getFeedFriends = async( token: string)=> {
     try {
+      if(!token){
+        throw new InvalidToken()
+      }
+      
       const authenticatorData = this.tokenGenerator.tokenData(token);
-      const result = await this.friendshipsDatabase.getFeedFriends(
-        order,
-        sort
-     
-      );
-      const recipesWithUserNames = friendsRecipes.map((recipe) => ({
+    
+      const userId1 =authenticatorData.id
+
+      const result = await this.friendshipsDatabase.getFeedFriends(userId1)
+
+      const recipes = result.map((recipe) => ({
         id: recipe.id,
         title: recipe.title,
         description: recipe.description,
         deadline: recipe.deadline,
         userId: recipe.userId,
-        userName: recipe.userName, // Suponha que você tem a propriedade "userName" associada ao usuário que criou a receita.
-      }));
-      // if (getFeedFriend.length < 1) {
-      //   throw new invalidPost();
-      // }
-
-      // if (!makeFriendship) {
-      //   throw new invalidMakeFriendship();
-      // }
-
-      return result;
+        userName: recipe.userName,
+    }));
+    
+      return {recipes};
     } catch (error: any) {
-      throw new Error(error.sqlMessage || error.message);
+      throw new CustomError(error.statusCode || 500, error.message);
     }
   }
 

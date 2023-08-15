@@ -66,14 +66,18 @@ class FriendshipsDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getFeedFriends = (sort, order) => __awaiter(this, void 0, void 0, function* () {
+        this.getFeedFriends = (userId1) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const friendsRecipes = yield FriendshipsDatabase.connection
-                    .select("friendships", "cookenu_users.name as Usuário", "recipes_table.title", "recipes_table.description", "recipes_table.deadline", "recipes_table.author_id")
-                    .innerJoin("cookenu_users", "friendships.id", "cookenu_users.id")
-                    .innerJoin("recipes_table", "friendships.id", "recipes_table.author_id")
-                    .where({ "friendships.status": "ACCEPTED" })
-                    .orderBy(order, sort)
+                    .select("recipes_table.id as id", "recipes_table.title as title", "recipes_table.description as description", "recipes_table.deadline as deadline", "recipes_table.author_id as userId", "cookenu_users.name as userName")
+                    .from("friendships")
+                    .innerJoin("cookenu_users", "friendships.user_id_2", "cookenu_users.id")
+                    .innerJoin("recipes_table", "friendships.user_id_2", "recipes_table.author_id")
+                    .where({
+                    "friendships.user_id_1": userId1,
+                    "friendships.status": "ACCEPTED"
+                })
+                    .orderBy("recipes_table.deadline", "asc")
                     .into(FriendshipsDatabase.TABLE_NAME);
                 return friendsRecipes;
             }

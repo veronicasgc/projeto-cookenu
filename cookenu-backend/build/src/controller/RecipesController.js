@@ -32,13 +32,35 @@ class RecipesController {
         });
         this.getRecipe = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const id = req.params.id;
-                if (!id) {
-                    res.status(404).send({ message: "Recipe not found!" });
+                const { recipeId } = req.params;
+                if (!recipeId) {
+                    res.status(404).send({ message: 'Recipe not found!' });
+                    return;
+                }
+                const token = req.headers.authorization;
+                if (!token) {
+                    res.status(401).send({ message: "Invalid token!" });
+                    return;
                 }
                 const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
-                const result = yield recipeBusiness.getRecipe(id, req.headers.authorization);
+                const result = yield recipeBusiness.getRecipe(recipeId, token);
+                if (!result) {
+                    res.status(404).send({ message: 'Recipe not found!' });
+                    return;
+                }
                 res.status(200).send(result);
+            }
+            catch (error) {
+                res.status(400).send({ error: error.message });
+            }
+        });
+        this.editRecipe = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const recipeId = req.params.recipeId;
+                const { newTitle, newDescription } = req.body;
+                const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
+                const token = req.headers.authorization;
+                yield recipeBusiness.editRecipe(recipeId, newTitle, newDescription, token);
             }
             catch (error) {
                 res.status(400).send(error);

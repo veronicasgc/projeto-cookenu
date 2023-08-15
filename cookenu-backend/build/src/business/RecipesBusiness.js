@@ -36,8 +36,34 @@ class RecipeBusiness {
         });
         this.getRecipe = (id, token) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                const userId = authenticatorData.id;
+                if (!userId) {
+                    throw new CustomErrorToken_1.InvalidToken();
+                }
                 const result = yield this.recipeDatabase.getRecipe(id);
+                if (!result) {
+                    throw new Error('Recipe not found.');
+                }
                 return result;
+            }
+            catch (error) {
+                throw new Error('Error getting recipe: ' + error.message);
+            }
+        });
+        this.editRecipe = (recipeId, newTitle, newDescription, token) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                const userId = authenticatorData.id;
+                const recipe = yield this.recipeDatabase.getRecipe(recipeId);
+                if (!recipe) {
+                    throw new Error('Receita não encontrada.');
+                }
+                if (recipe.authorId !== userId) {
+                    throw new Error('Você não tem permissão para editar esta receita.');
+                }
+                const newDeadline = new Date();
+                yield this.recipeDatabase.updateRecipe(recipeId, newTitle, newDescription, newDeadline);
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);

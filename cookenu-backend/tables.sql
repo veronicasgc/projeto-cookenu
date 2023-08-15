@@ -19,13 +19,6 @@ CREATE TABLE IF NOT EXISTS Recipes_table (
     FOREIGN KEY (author_id) REFERENCES Cookenu_users(id)
 );
 
-CREATE TABLE IF NOT EXISTS Users_signup (
-    recipe_id UUID,
-    signup_id UUID,
-    PRIMARY KEY (recipe_id, signup_id),
-    FOREIGN KEY (recipe_id) REFERENCES Recipes_table(id),
-    FOREIGN KEY (signup_id) REFERENCES Cookenu_users(id)
-);
 
 CREATE TABLE IF NOT EXISTS Friendships (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

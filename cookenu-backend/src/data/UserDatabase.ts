@@ -73,7 +73,9 @@ export class UserDatabase extends BaseDatabase {
       throw new CustomError(400, error.message);
     }
   };
-
+public addSignupUser = async () => {
+  
+}
   
 
  
