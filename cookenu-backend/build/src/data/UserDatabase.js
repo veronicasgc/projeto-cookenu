@@ -23,7 +23,8 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
                     name: user.name,
                     email: user.email,
                     password: user.password,
-                    role: user.role
+                    role: user.role,
+                    isGeneratedPassword: true
                 })
                     .into(UserDatabase.TABLE_NAME);
             }
@@ -106,6 +107,18 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
             newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         return newPassword;
+    }
+    setGeneratedPasswordFlag(userId, isGeneratedPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield UserDatabase.connection(UserDatabase.TABLE_NAME)
+                    .where({ id: userId })
+                    .update({ isGeneratedPassword });
+            }
+            catch (error) {
+                throw new CustomError_1.CustomError(400, error.message);
+            }
+        });
     }
 }
 exports.UserDatabase = UserDatabase;

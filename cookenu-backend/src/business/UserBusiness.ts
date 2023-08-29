@@ -96,7 +96,7 @@ export class UserBusiness {
 
       let isValidPassword: boolean = false
 
-      if (user.isGeneratedPassword && password === user.generatedPassword) {
+      if (user.isGeneratedPassword && password === user.isGeneratedPassword) {
         isValidPassword = true;
       } else {
         isValidPassword = await this.hashManager.compare(
@@ -183,6 +183,8 @@ try {
   const generatedPassword = this.userDatabase.generateRandomPassword();
 
   await this.userDatabase.updatePassword(user.id, generatedPassword);
+  await this.userDatabase.setGeneratedPasswordFlag(user.id, true);
+  
   return generatedPassword;
 } catch (error: any) {
   throw new CustomError(400, error.message);

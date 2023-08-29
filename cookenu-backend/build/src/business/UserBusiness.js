@@ -148,6 +148,7 @@ class UserBusiness {
                 }
                 const generatedPassword = this.userDatabase.generateRandomPassword();
                 yield this.userDatabase.updatePassword(user.id, generatedPassword);
+                yield this.userDatabase.setGeneratedPasswordFlag(user.id, true);
                 return generatedPassword;
             }
             catch (error) {

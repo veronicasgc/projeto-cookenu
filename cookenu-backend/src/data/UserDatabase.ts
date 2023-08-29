@@ -16,7 +16,8 @@ export class UserDatabase extends BaseDatabase {
           name: user.name,
           email: user.email,
           password: user.password,
-          role: user.role
+          role: user.role,
+          isGeneratedPassword: true
         })
         .into(UserDatabase.TABLE_NAME);
     } catch (error: any) {
@@ -111,6 +112,15 @@ export class UserDatabase extends BaseDatabase {
     }
     return newPassword;
   }
-   
+  public async setGeneratedPasswordFlag(userId: string, isGeneratedPassword: boolean) {
+    try {
+      await UserDatabase.connection(UserDatabase.TABLE_NAME)
+        .where({ id: userId })
+        .update({ isGeneratedPassword });
+    } catch (error: any) {
+      throw new CustomError(400, error.message);
+    }
+  }
+  
 }
 

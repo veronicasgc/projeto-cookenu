@@ -9,6 +9,7 @@ export enum UserRole {
     password: string;
     name: string;
     role: UserRole;
+    isGeneratedPassword?: boolean
   };
   
   export interface UserInputDTO {
