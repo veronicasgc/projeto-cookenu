@@ -21,12 +21,12 @@ export class RecipeDatabase extends BaseDatabase {
     }
   };
 
-  public getRecipe = async (id: string): Promise<any> => {
+  public getRecipe = async (recipeId: string): Promise<any> => {
     try {
       const searchResult = await RecipeDatabase.connection.queryBuilder()
         .select("*")
         .from("recipes_table")
-        .where('id', id);
+        .where('id', recipeId);
 
         if (searchResult.length === 0) {
           return null; // Retorna null quando a receita não é encontrada
@@ -44,20 +44,32 @@ export class RecipeDatabase extends BaseDatabase {
       
     }
   };
- //OLHAR SOBRE O SET DEPOIS DO UPDATE PARA COLOCAR AS INFORMAÇÕES NOVAS DA RECEITA? NA TABELA QUANDO FUI EDITAR APARECEU O UPDATE, SET E WHERE
+
   public updateRecipe = async(recipeId: string,newTitle: string,newDescription: string,newDeadline: Date) => {
     try {
       await RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
+      .where({id: recipeId})
       .update({
         title: newTitle,
         description:newDescription,
         deadline:newDeadline
       })
-      .where({id: recipeId})
       .into(RecipeDatabase.TABLE_NAME)
     } catch (error: any) {
-      throw new CustomError(400, error.message);
+      throw new Error('Unable to update recipe.');
+      // throw new CustomError(400, error.message);
       
+    }
+  }
+
+  public deleteRecipe = async(recipeId: string): Promise<any> => {
+    try {
+      await RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
+      .where({id: recipeId})
+      .delete()
+     
+    } catch (error: any) {
+      throw new CustomError(400, error.message);
     }
   }
 }

@@ -10,4 +10,6 @@ recipeRouter.post("/createRecipe", recipeController.createRecipeController);
 
 recipeRouter.get("/:recipeId",recipeController.getRecipe);
 
-recipeRouter.put("/:id", recipeController.editRecipe)
+recipeRouter.put("/:recipeId", recipeController.editRecipe)
+
+recipeRouter.delete("/:recipeId", recipeController.deleteRecipe)

@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserDatabase = void 0;
 const CustomError_1 = require("../error/CustomError");
-const TokenGenerator_1 = require("../services/TokenGenerator");
 const BaseDatabase_1 = require("./BaseDatabase");
 class UserDatabase extends BaseDatabase_1.BaseDatabase {
     constructor() {
@@ -53,27 +52,60 @@ class UserDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getUser = (token) => __awaiter(this, void 0, void 0, function* () {
+        this.getUser = (userId) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const tokenGenerator = new TokenGenerator_1.TokenGenerator();
-                const tokenData = tokenGenerator.tokenData(token);
                 const userData = yield UserDatabase.connection.queryBuilder()
-                    .select('id', 'email')
-                    .where({ id: tokenData.id })
+                    .select('id', 'name', 'email')
+                    .where({ id: userId })
                     .from(UserDatabase.TABLE_NAME)
                     .first();
                 if (!userData) {
                     throw new CustomError_1.CustomError(404, 'User not found');
                 }
-                const { id, email } = userData;
-                return { id, email };
+                const { id, name, email } = userData;
+                return { id, name, email };
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.addSignupUser = () => __awaiter(this, void 0, void 0, function* () {
+        this.deleteAccount = (userId) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield UserDatabase.connection.transaction((trx) => __awaiter(this, void 0, void 0, function* () {
+                    // Delete user's recipes
+                    yield trx('recipes_table')
+                        .where('author_id', userId)
+                        .delete();
+                    // Delete user's friendships
+                    yield trx('friendships')
+                        .where('user_id_1', userId)
+                        .orWhere('user_id_2', userId)
+                        .delete();
+                    // Delete user
+                    yield trx(UserDatabase.TABLE_NAME)
+                        .where('id', userId)
+                        .delete();
+                }));
+            }
+            catch (error) {
+                throw new CustomError_1.CustomError(400, error.message);
+            }
         });
+    }
+    updatePassword(userId, newPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield UserDatabase.connection(UserDatabase.TABLE_NAME)
+                .where({ id: userId })
+                .update({ password: newPassword });
+        });
+    }
+    generateRandomPassword() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let newPassword = '';
+        for (let i = 0; i < 8; i++) {
+            newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return newPassword;
     }
 }
 exports.UserDatabase = UserDatabase;

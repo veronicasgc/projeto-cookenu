@@ -15,10 +15,11 @@ const userBusiness = new UserBusiness(
   new UserDatabase()
 );
 
-const userController = new UserController(userBusiness);
+const userController = new UserController(userBusiness, new UserDatabase);
 
 userRouter.post("/signup",(req, res)=> userController.signup(req,res));
 userRouter.post("/login",(req, res)=> userController.login(req,res));
 userRouter.get("/allUsers",(req, res)=> userController.allUsers(req,res))
-userRouter.get("/getUser",(req, res)=> userController.getUser(req,res))
-// userRouter.put("/edit/:id", userController.editUser);
+userRouter.get("/getUser/:userId",(req, res)=> userController.getUser(req,res))
+userRouter.delete("/:userId",(req, res)=> userController.deleteAccount(req, res))
+userRouter.post("/forgotPassword", userController.forgotPassword)

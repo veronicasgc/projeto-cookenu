@@ -10,4 +10,5 @@ exports.recipeRouter = express_1.default.Router();
 const recipeController = new RecipesController_1.RecipesController();
 exports.recipeRouter.post("/createRecipe", recipeController.createRecipeController);
 exports.recipeRouter.get("/:recipeId", recipeController.getRecipe);
-exports.recipeRouter.put("/:id", recipeController.editRecipe);
+exports.recipeRouter.put("/:recipeId", recipeController.editRecipe);
+exports.recipeRouter.delete("/:recipeId", recipeController.deleteRecipe);

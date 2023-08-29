@@ -52,13 +52,12 @@ export class UserDatabase extends BaseDatabase {
   };
 
 
-  public getUser = async (token: string) => {
+  public getUser = async (userId: string): Promise<any> => {
     try {
-      const tokenGenerator = new TokenGenerator()
-      const tokenData = tokenGenerator.tokenData(token);
+    
       const userData = await UserDatabase.connection.queryBuilder()
-        .select('id', 'email')
-        .where({ id: tokenData.id})
+        .select('id','name', 'email')
+        .where({ id:userId})
         .from(UserDatabase.TABLE_NAME)
         .first();
   
@@ -66,18 +65,52 @@ export class UserDatabase extends BaseDatabase {
         throw new CustomError(404, 'User not found');
       }
   
-      const { id, email } = userData;
+      const { id, name,email } = userData;
   
-      return { id, email };
+      return { id, name, email };
     } catch (error: any) {
       throw new CustomError(400, error.message);
     }
   };
-public addSignupUser = async () => {
-  
-}
-  
 
- 
+  public deleteAccount = async (userId: string) => {
+    try {
+      await UserDatabase.connection.transaction(async (trx) => {
+        // Delete user's recipes
+        await trx('recipes_table')
+          .where('author_id', userId)
+          .delete();
+  
+        // Delete user's friendships
+        await trx('friendships')
+          .where('user_id_1', userId)
+          .orWhere('user_id_2', userId)
+          .delete();
+  
+        // Delete user
+        await trx(UserDatabase.TABLE_NAME)
+          .where('id', userId)
+          .delete();
+      });
+    } catch (error: any) {
+      throw new CustomError(400, error.message);
+    }
+  }
+  
+  public async updatePassword(userId: string, newPassword: string) {
+    await UserDatabase.connection(UserDatabase.TABLE_NAME)
+      .where({ id: userId })
+      .update({ password: newPassword });
+  }
+
+  public generateRandomPassword() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let newPassword = '';
+    for (let i = 0; i < 8; i++) {
+      newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return newPassword;
+  }
+   
 }
 

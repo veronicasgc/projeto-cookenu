@@ -31,12 +31,12 @@ class RecipeDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getRecipe = (id) => __awaiter(this, void 0, void 0, function* () {
+        this.getRecipe = (recipeId) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const searchResult = yield RecipeDatabase.connection.queryBuilder()
                     .select("*")
                     .from("recipes_table")
-                    .where('id', id);
+                    .where('id', recipeId);
                 if (searchResult.length === 0) {
                     return null; // Retorna null quando a receita não é encontrada
                 }
@@ -52,17 +52,27 @@ class RecipeDatabase extends BaseDatabase_1.BaseDatabase {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        //OLHAR SOBRE O SET DEPOIS DO UPDATE PARA COLOCAR AS INFORMAÇÕES NOVAS DA RECEITA? NA TABELA QUANDO FUI EDITAR APARECEU O UPDATE, SET E WHERE
         this.updateRecipe = (recipeId, newTitle, newDescription, newDeadline) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
+                    .where({ id: recipeId })
                     .update({
                     title: newTitle,
                     description: newDescription,
                     deadline: newDeadline
                 })
-                    .where({ id: recipeId })
                     .into(RecipeDatabase.TABLE_NAME);
+            }
+            catch (error) {
+                throw new Error('Unable to update recipe.');
+                // throw new CustomError(400, error.message);
+            }
+        });
+        this.deleteRecipe = (recipeId) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield RecipeDatabase.connection(RecipeDatabase.TABLE_NAME)
+                    .where({ id: recipeId })
+                    .delete();
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);

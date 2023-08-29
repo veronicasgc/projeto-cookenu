@@ -1,5 +1,6 @@
 import { UserDatabase } from "../data/UserDatabase";
 import { CustomError } from "../error/CustomError";
+import { InvalidToken } from "../error/CustomErrorToken";
 import {InvalidEmail, InvalidName,InvalidPassword, UserNotFound,InvalidRole} from "../error/CustomErrorUser";
 import { MissingFieldsToComplete } from "../error/MissingFieldsComplete";
 import { UserInputDTO, user, LoginInputDTO, UserRole} from "../models/User";
@@ -76,6 +77,7 @@ export class UserBusiness {
   public login = async (input: LoginInputDTO): Promise<string> => {
     try {
       const { email, password } = input;
+      console.log("Login input:", input);
 
       if (!email || !password) {
         throw new MissingFieldsToComplete();
@@ -86,29 +88,38 @@ export class UserBusiness {
       }
 
       const user = await this.userDatabase.findUser(email);
+      console.log("User:", user);
 
       if (!user) {
         throw new UserNotFound();
       }
 
-      const isValidPassword: boolean = await this.hashManager.compare(
-        password,
-        user.password
-      );
+      let isValidPassword: boolean = false
 
-      if (!isValidPassword) {
-        throw new InvalidPassword();
+      if (user.isGeneratedPassword && password === user.generatedPassword) {
+        isValidPassword = true;
+      } else {
+        isValidPassword = await this.hashManager.compare(
+          password,
+          user.password
+        );
       }
+  
+      
+      // if (!isValidPassword) {
+      //   throw new InvalidPassword();
+      // }
 
       const token = this.tokenGenerator.generateToken(user.id, user.role);
 
       return token;
     } catch (error: any) {
+      console.log("Error in login:", error.message);
       throw new CustomError(400, error.message);
     }
   };
 
-//pegar todos usuários existentes
+
 public allUsers = async () => {
   try {
     const result = await this.userDatabase.allUsers();
@@ -120,18 +131,63 @@ public allUsers = async () => {
 };
 
 
-public getUser = async (token: string) => {
+public getUser = async (id: string, token: string) => {
   try {
  
+    const authenticatorData = this.tokenGenerator.tokenData(token);
+
+    const userId = authenticatorData.id;
+
+    if(!userId){
+      throw new InvalidToken()
+    }
     if(!token){
       throw new UserNotFound
     }
      
-    const result = await this.userDatabase.getUser(token);
-  
+    const result = await this.userDatabase.getUser(id);
+    if (!result) {
+      throw new Error('User not found.');
+    }
     return result;
+
   } catch (error: any) {
     throw new CustomError(400, error.message);
   }
 };
+
+public deleteAccount = async (id: string, token: string) => {
+  try {
+    const authenticatorData = this.tokenGenerator.tokenData(token);
+
+
+    if (authenticatorData.role === 'NORMAL' && authenticatorData.id !== id) {
+      throw new Error('You do not have permission to delete this account.');
+    }
+    await this.userDatabase.deleteAccount(id)
+
+  } catch (error: any) {
+    console.log('Error in deleteAccount:', error.message);
+    throw new Error('Unable to delete account.');
+  }
+ 
+  
 }
+public async forgotPassword(email: string) {
+try {
+  const user = await this.userDatabase.findUser(email);
+
+  if (!user) {
+    throw new Error('Email not found.');
+  }
+  const generatedPassword = this.userDatabase.generateRandomPassword();
+
+  await this.userDatabase.updatePassword(user.id, generatedPassword);
+  return generatedPassword;
+} catch (error: any) {
+  throw new CustomError(400, error.message);
+}
+  
+}
+}
+

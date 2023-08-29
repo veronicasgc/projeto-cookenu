@@ -57,16 +57,38 @@ class RecipeBusiness {
                 const userId = authenticatorData.id;
                 const recipe = yield this.recipeDatabase.getRecipe(recipeId);
                 if (!recipe) {
-                    throw new Error('Receita não encontrada.');
+                    throw new Error('Recipe not found.');
                 }
                 if (recipe.authorId !== userId) {
-                    throw new Error('Você não tem permissão para editar esta receita.');
+                    console.log('You do not have permission to edit this recipe.');
+                    throw new Error('You do not have permission to edit this recipe.');
                 }
                 const newDeadline = new Date();
                 yield this.recipeDatabase.updateRecipe(recipeId, newTitle, newDescription, newDeadline);
             }
             catch (error) {
-                throw new CustomError_1.CustomError(400, error.message);
+                console.log('Error in editRecipe:', error.message);
+                throw new Error('Unable to edit recipe.');
+                // throw new CustomError(400, error.message)
+            }
+        });
+        this.deleteRecipe = (recipeId, token) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                const userId = authenticatorData.id;
+                const recipe = yield this.recipeDatabase.getRecipe(recipeId);
+                if (!recipe) {
+                    throw new Error('Recipe not found.');
+                }
+                if (recipe.authorId !== userId && authenticatorData.role !== 'ADMIN') {
+                    console.log('You do not have permission to delete this recipe.');
+                    throw new Error('You do not have permission to delete this recipe.');
+                }
+                yield this.recipeDatabase.deleteRecipe(recipeId);
+            }
+            catch (error) {
+                console.log('Error in deleteRecipe:', error.message);
+                throw new Error('Unable to delete recipe.');
             }
         });
     }

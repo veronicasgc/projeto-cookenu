@@ -71,11 +71,13 @@ export class RecipeBusiness {
       const recipe = await this.recipeDatabase.getRecipe(recipeId)
 
       if (!recipe) {
-        throw new Error('Receita não encontrada.');
+    
+        throw new Error('Recipe not found.');
       }
 
       if (recipe.authorId !== userId) {
-        throw new Error('Você não tem permissão para editar esta receita.');
+        console.log('You do not have permission to edit this recipe.');
+        throw new Error('You do not have permission to edit this recipe.');
       }
 
       const newDeadline = new Date()
@@ -83,7 +85,32 @@ export class RecipeBusiness {
       await this.recipeDatabase.updateRecipe(recipeId, newTitle, newDescription, newDeadline);
 
     }catch (error: any) {
-      throw new CustomError(400, error.message)
+      console.log('Error in editRecipe:', error.message);
+      throw new Error('Unable to edit recipe.');
+      // throw new CustomError(400, error.message)
+    }
+  }
+
+  public deleteRecipe = async (recipeId: string, token: string) => {
+    try {
+      const authenticatorData = this.tokenGenerator.tokenData(token);
+
+      const userId = authenticatorData.id;
+
+      const recipe = await this.recipeDatabase.getRecipe(recipeId)
+
+      if (!recipe) {
+        throw new Error('Recipe not found.');
+      }
+
+      if (recipe.authorId !== userId && authenticatorData.role !== 'ADMIN') {
+        console.log('You do not have permission to delete this recipe.');
+        throw new Error('You do not have permission to delete this recipe.');
+      }
+await this.recipeDatabase.deleteRecipe(recipeId)
+    } catch (error: any) {
+      console.log('Error in deleteRecipe:', error.message);
+      throw new Error('Unable to delete recipe.');
     }
   }
 

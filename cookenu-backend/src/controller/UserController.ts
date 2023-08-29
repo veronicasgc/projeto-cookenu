@@ -1,9 +1,14 @@
 import { Request, Response } from "express";
 import { UserBusiness } from "../business/UserBusiness";
 import { EditUserInputDTO, LoginInputDTO, UserInputDTO } from "../models/User";
+import { UserDatabase } from "../data/UserDatabase";
 
 export class UserController {
-  constructor(private readonly userBusiness: UserBusiness) {}
+
+  constructor(
+    private readonly userBusiness: UserBusiness,
+    private readonly userDatabase: UserDatabase
+    ) {}
 
   public signup = async (req: Request, res: Response) => {
     try {
@@ -27,20 +32,34 @@ export class UserController {
   public login = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
+      console.log("Login request:", req.body);
 
       const input: LoginInputDTO = {
         email,
         password,
       };
-      const token = await this.userBusiness.login(input);
+     const token = await this.userBusiness.login(input);
+     console.log("Generated token:", token);
 
-      res.status(200).send({ message: "Usuário logado!", token });
+      let message = "Usuário logado!";
+      let generatedPasswordUsed = false;
+
+      const user = await this.userDatabase.findUser(email);
+      console.log("User in Controller:", user);
+      
+      if (user && password === user.generatedPassword) {
+        message = "Usuário logado com senha gerada. Por favor, atualize sua senha.";
+        generatedPasswordUsed = true;
+      }
+      res.status(200).send({ message, token, generatedPasswordUsed });
+
     } catch (error: any) {
+      console.log("Controller error:", error);
       res.status(400).send(error.message);
     }
   };
 
-//pegar todos usuários existentes
+
 public allUsers = async (req: Request, res: Response) => {
   try {
     
@@ -56,12 +75,46 @@ public allUsers = async (req: Request, res: Response) => {
   public getUser = async (req: Request, res: Response) => {
     try {
       const token = req.headers.token as string
+      const userId = req.params.userId as string
 
-    const result=  await this.userBusiness.getUser(token);
+    const result=  await this.userBusiness.getUser(userId, token);
 
       res.status(201).send(result)
     } catch (error: any) {
       res.status(400).send(error.message);
     }
   };
+
+  public deleteAccount = async (req: Request, res: Response)=>{
+    try {
+      const userId = req.params.userId;
+    const token = req.headers.authorization as string
+
+    await this.userBusiness.deleteAccount(userId, token)
+
+    res.status(200).send('Account deteled successfully.')
+  } catch (error) {
+      console.log('Controller error:', error);
+    res.status(400).send(error);
+  }
+  }
+
+  public forgotPassword = async (req: Request, res: Response) => {
+    try {
+      const email = req.body.email
+   
+
+  
+      const newPassword = await this.userBusiness.forgotPassword(email)
+
+      res.status(200).send(`Password reset successfully.Your new password is: ${newPassword}`);
+      
+    } catch (error: any) {
+      res.status(400).send(error.message);
+    }
+ 
+  } 
+
 }
+
+

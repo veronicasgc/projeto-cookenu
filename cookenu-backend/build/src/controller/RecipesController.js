@@ -58,9 +58,23 @@ class RecipesController {
             try {
                 const recipeId = req.params.recipeId;
                 const { newTitle, newDescription } = req.body;
-                const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
                 const token = req.headers.authorization;
+                const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
                 yield recipeBusiness.editRecipe(recipeId, newTitle, newDescription, token);
+                res.status(200).send('Recipe updated successfully.');
+            }
+            catch (error) {
+                // console.log('Controller error:', error);
+                res.status(400).send(error);
+            }
+        });
+        this.deleteRecipe = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const recipeId = req.params.recipeId;
+                const token = req.headers.authorization;
+                const recipeBusiness = new RecipesBusiness_1.RecipeBusiness(new RecipesDatabase_1.RecipeDatabase, new IdGenerator_1.IdGenerator, new TokenGenerator_1.TokenGenerator);
+                yield recipeBusiness.deleteRecipe(recipeId, token);
+                res.status(200).send('Recipe deteled successfully.');
             }
             catch (error) {
                 res.status(400).send(error);

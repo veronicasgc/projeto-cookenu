@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserBusiness = void 0;
 const CustomError_1 = require("../error/CustomError");
+const CustomErrorToken_1 = require("../error/CustomErrorToken");
 const CustomErrorUser_1 = require("../error/CustomErrorUser");
 const MissingFieldsComplete_1 = require("../error/MissingFieldsComplete");
 const User_1 = require("../models/User");
@@ -65,6 +66,7 @@ class UserBusiness {
         this.login = (input) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = input;
+                console.log("Login input:", input);
                 if (!email || !password) {
                     throw new MissingFieldsComplete_1.MissingFieldsToComplete();
                 }
@@ -72,21 +74,28 @@ class UserBusiness {
                     throw new CustomErrorUser_1.InvalidEmail();
                 }
                 const user = yield this.userDatabase.findUser(email);
+                console.log("User:", user);
                 if (!user) {
                     throw new CustomErrorUser_1.UserNotFound();
                 }
-                const isValidPassword = yield this.hashManager.compare(password, user.password);
-                if (!isValidPassword) {
-                    throw new CustomErrorUser_1.InvalidPassword();
+                let isValidPassword = false;
+                if (user.isGeneratedPassword && password === user.generatedPassword) {
+                    isValidPassword = true;
                 }
+                else {
+                    isValidPassword = yield this.hashManager.compare(password, user.password);
+                }
+                // if (!isValidPassword) {
+                //   throw new InvalidPassword();
+                // }
                 const token = this.tokenGenerator.generateToken(user.id, user.role);
                 return token;
             }
             catch (error) {
+                console.log("Error in login:", error.message);
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        //pegar todos usuários existentes
         this.allUsers = () => __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this.userDatabase.allUsers();
@@ -96,13 +105,50 @@ class UserBusiness {
                 throw new CustomError_1.CustomError(400, error.message);
             }
         });
-        this.getUser = (token) => __awaiter(this, void 0, void 0, function* () {
+        this.getUser = (id, token) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                const userId = authenticatorData.id;
+                if (!userId) {
+                    throw new CustomErrorToken_1.InvalidToken();
+                }
                 if (!token) {
                     throw new CustomErrorUser_1.UserNotFound;
                 }
-                const result = yield this.userDatabase.getUser(token);
+                const result = yield this.userDatabase.getUser(id);
+                if (!result) {
+                    throw new Error('User not found.');
+                }
                 return result;
+            }
+            catch (error) {
+                throw new CustomError_1.CustomError(400, error.message);
+            }
+        });
+        this.deleteAccount = (id, token) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const authenticatorData = this.tokenGenerator.tokenData(token);
+                if (authenticatorData.role === 'NORMAL' && authenticatorData.id !== id) {
+                    throw new Error('You do not have permission to delete this account.');
+                }
+                yield this.userDatabase.deleteAccount(id);
+            }
+            catch (error) {
+                console.log('Error in deleteAccount:', error.message);
+                throw new Error('Unable to delete account.');
+            }
+        });
+    }
+    forgotPassword(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.userDatabase.findUser(email);
+                if (!user) {
+                    throw new Error('Email not found.');
+                }
+                const generatedPassword = this.userDatabase.generateRandomPassword();
+                yield this.userDatabase.updatePassword(user.id, generatedPassword);
+                return generatedPassword;
             }
             catch (error) {
                 throw new CustomError_1.CustomError(400, error.message);
