@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Unauthorized = exports.UserNotFound = exports.InvalidPassword = exports.InvalidRole = exports.InvalidEmail = exports.InvalidName = void 0;
+exports.Unauthorized = exports.UserNotFound = exports.InvalidPassword = exports.InvalidPasswordCharacters = exports.InvalidRole = exports.InvalidEmail = exports.InvalidName = void 0;
 const CustomError_1 = require("./CustomError");
 class InvalidName extends CustomError_1.CustomError {
     constructor() {
@@ -20,9 +20,15 @@ class InvalidRole extends CustomError_1.CustomError {
     }
 }
 exports.InvalidRole = InvalidRole;
-class InvalidPassword extends CustomError_1.CustomError {
+class InvalidPasswordCharacters extends CustomError_1.CustomError {
     constructor() {
         super(400, "Invalid password. Enter a password of at least 6 characters!");
+    }
+}
+exports.InvalidPasswordCharacters = InvalidPasswordCharacters;
+class InvalidPassword extends CustomError_1.CustomError {
+    constructor() {
+        super(400, "Invalid password!");
     }
 }
 exports.InvalidPassword = InvalidPassword;

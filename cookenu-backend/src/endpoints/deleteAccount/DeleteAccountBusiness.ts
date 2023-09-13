@@ -1,11 +1,9 @@
-import { HashManager } from "../../services/HashManager";
 import { TokenGenerator } from "../../services/TokenGenerator";
 import { DeleteAccountDatabase } from "./DeleteAccountDatabase";
 
 export class DeleteAccountBusiness {
   constructor(
     private readonly tokenGenerator: TokenGenerator,
-    private readonly hashManager: HashManager,
     private readonly deleteAccountDatabase: DeleteAccountDatabase
   ) {}
   public deleteAccount = async (id: string, token: string) => {

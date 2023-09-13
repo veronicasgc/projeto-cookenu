@@ -5,13 +5,19 @@ export class ForgotPasswordDatabase extends BaseDatabase {
   private static TABLE_NAME = "cookenu_users";
 
   public async updatePassword(userId: string, newPassword: string) {
-    await ForgotPasswordDatabase.connection(ForgotPasswordDatabase.TABLE_NAME)
+    try {
+      await ForgotPasswordDatabase.connection(ForgotPasswordDatabase.TABLE_NAME)
       .where({ id: userId })
       .update({ password: newPassword });
+    } catch (error: any) {
+      throw new CustomError(400, error.message);
+    }
+ 
   }
 
   public generateRandomPassword() {
-    const characters =
+    try {
+      const characters =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let newPassword = "";
     for (let i = 0; i < 8; i++) {
@@ -20,6 +26,10 @@ export class ForgotPasswordDatabase extends BaseDatabase {
       );
     }
     return newPassword;
+    } catch (error:any) {
+      throw new CustomError(400, error.message);
+    }
+ 
   }
   public async setGeneratedPasswordFlag(
     userId: string,

@@ -20,9 +20,9 @@ export class CreateRecipeController{
             req.headers.authorization as string
           );
     
-          res.status(201).send({ message: "Receita criada com sucesso!" });
-        } catch (error) {
-          res.status(400).send(error);
+          res.status(201).send({ message: "Recipe created successfully!" });
+        } catch (error: any) {
+          res.status(400).send(error.message);
         }
       };
 }

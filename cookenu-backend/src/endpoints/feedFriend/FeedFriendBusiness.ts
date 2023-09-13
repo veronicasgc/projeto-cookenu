@@ -1,4 +1,5 @@
 import { CustomError } from "../../error/CustomError";
+import { RecipeNotFound } from "../../error/CustomErrorRecipes";
 import { InvalidToken } from "../../error/CustomErrorToken";
 import { TokenGenerator } from "../../services/TokenGenerator";
 import { FeedFriendDatabase } from "./FeedFriendDatabase";
@@ -18,8 +19,10 @@ export class FeedFriendBusiness {
       const authenticatorData = this.tokenGenerator.tokenData(token);
 
       const userId1 = authenticatorData.id;
+     
 
       const result = await this.feedFriendDatabase.getFeedFriends(userId1);
+   
 
       const recipes = result.map((recipe) => ({
         id: recipe.id,
@@ -29,6 +32,10 @@ export class FeedFriendBusiness {
         userId: recipe.userId,
         userName: recipe.userName,
       }));
+
+      if(!recipes){
+        throw new RecipeNotFound()
+      }
 
       return { recipes };
     } catch (error: any) {

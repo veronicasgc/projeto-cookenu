@@ -1,6 +1,5 @@
 import { UserInputDTO } from "../../models/User";
 import { CreateUserBusiness } from "./CreateUserBusiness";
-import { CreateUserDatabase } from "./CreateUserDatabase";
 import { Request, Response } from "express";
 
 export class CreateUserController {
@@ -11,7 +10,7 @@ export class CreateUserController {
 
   public signup = async (req: Request, res: Response) => {
     try {
-      const { name, email, password, role } = req.body; //, role
+      const { name, email, password, role } = req.body;
 
       const input: UserInputDTO = {
         name,
@@ -22,7 +21,7 @@ export class CreateUserController {
 
       const token = await this.createUserBusiness.createUser(input);
 
-      res.status(201).send({ message: "Usuário criado!", token });
+      res.status(201).send({ message: "User created!", token });
     } catch (error: any) {
       res.status(400).send(error.message);
     }

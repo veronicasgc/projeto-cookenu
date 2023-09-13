@@ -4,7 +4,9 @@ import {
   InvalidPassword,
   InvalidEmail,
   InvalidRole,
+  InvalidPasswordCharacters,
 } from "../../error/CustomErrorUser";
+import { MissingFieldsToComplete } from "../../error/MissingFieldsComplete";
 import { UserInputDTO, UserRole, user } from "../../models/User";
 import { HashManager } from "../../services/HashManager";
 import { IdGeneratorInterface } from "../../services/IdGenerator";
@@ -25,10 +27,7 @@ export class CreateUserBusiness {
       let role = input.role;
 
       if (!name || !email || !password || !role) {
-        throw new CustomError(
-          400,
-          'Preencha os campos "name", "email", "password" e "role"'
-        );
+        throw new MissingFieldsToComplete()
       }
 
       if (name.length < 4) {
@@ -36,7 +35,7 @@ export class CreateUserBusiness {
       }
 
       if (password.length < 6) {
-        throw new InvalidPassword();
+        throw new InvalidPasswordCharacters();
       }
 
       if (!email.includes("@")) {
@@ -63,9 +62,9 @@ export class CreateUserBusiness {
         role: UserRole[role as keyof typeof UserRole],
       };
 
-      // if (user.email === email) {
-      //   throw new CustomError(400,'Email já cadastrado!');;
-      // }
+      if (newUser.email === email) {
+        throw new CustomError(400,'Email já cadastrado!');;
+      }
 
       await this.createUserDatabase.insertUser(newUser);
       const token = this.tokenGenerator.generateToken(id, newUser.role);

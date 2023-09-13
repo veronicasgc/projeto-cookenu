@@ -6,6 +6,7 @@ export class FeedFriendDatabase extends BaseDatabase {
 
   public getFeedFriends = async (userId1: string) => {
     try {
+      
       const friendsRecipes = await FeedFriendDatabase.connection
         .select(
           "recipes_table.id as id",
@@ -34,6 +35,8 @@ export class FeedFriendDatabase extends BaseDatabase {
 
         .into(FeedFriendDatabase.TABLE_NAME);
 
+       
+        
       return friendsRecipes;
     } catch (error: any) {
       throw new CustomError(400, error.message);

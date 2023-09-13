@@ -1,5 +1,5 @@
 import { CustomError } from "../../error/CustomError";
-import { invalidYouBeYourFriend } from "../../error/CustomErrorFriend";
+import { InvalidBeFriendsAgain, InvalidMakeFriendship, InvalidToBeYourFriend } from "../../error/CustomErrorFriend";
 import { FriendInsert, Friend } from "../../models/Friend";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenGenerator } from "../../services/TokenGenerator";
@@ -18,14 +18,14 @@ export class MakeFriendshipBusiness {
   ): Promise<void> => {
     try {
       if (!input.userId2 || input.userId2.trim() === "") {
-        throw new Error("Invalid userToFollowId.");
+        throw new InvalidMakeFriendship();
       }
 
       const authenticatorData = this.tokenGenerator.tokenData(token);
       const userId1 = authenticatorData.id;
 
       if (userId1 === input.userId2) {
-        throw new invalidYouBeYourFriend();
+        throw new InvalidToBeYourFriend();
       }
 
       const existingRequest =
@@ -34,19 +34,23 @@ export class MakeFriendshipBusiness {
           userId2: input.userId2,
         });
 
-      if (existingRequest && existingRequest.status === "PENDING") {
-        await this.makeFriendshipDatabase.updateFriendshipStatus(
-          existingRequest.id,
-          "ACCEPTED"
-        );
-      } else {
-        const friend: Friend = {
-          id: this.idGenerator.generateId(),
-          userId1,
-          userId2: input.userId2,
-          status: "PENDING",
-        };
-        await this.makeFriendshipDatabase.beFriend(friend);
+        if (existingRequest) {
+          if (existingRequest.status === "PENDING") {
+            await this.makeFriendshipDatabase.updateFriendshipStatus(
+              existingRequest.id,
+              "ACCEPTED"
+            );
+          } else if (existingRequest.status === "ACCEPTED") {
+            throw new InvalidBeFriendsAgain();
+          }
+        } else {
+          const friend: Friend = {
+            id: this.idGenerator.generateId(),
+            userId1,
+            userId2: input.userId2,
+            status: "PENDING",
+          };
+          await this.makeFriendshipDatabase.beFriend(friend);
       }
     } catch (error: any) {
       throw new CustomError(400, error.message);

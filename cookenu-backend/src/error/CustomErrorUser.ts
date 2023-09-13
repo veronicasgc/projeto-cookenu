@@ -19,9 +19,15 @@ import { CustomError } from "./CustomError";
     }
   }
   
-  export class InvalidPassword extends CustomError {
+  export class InvalidPasswordCharacters extends CustomError {
     constructor() {
       super(400, "Invalid password. Enter a password of at least 6 characters!");
+    }
+  }
+
+  export class InvalidPassword extends CustomError {
+    constructor() {
+      super(400, "Invalid password!");
     }
   }
   

@@ -1,4 +1,5 @@
 import { CustomError } from "../../error/CustomError";
+import { UserNotFound } from "../../error/CustomErrorUser";
 import { LoginUserDatabase } from "../loginUser/LoginUserDatabase";
 import { ForgotPasswordDatabase } from "./ForgotPasswordDatabase";
 
@@ -13,7 +14,7 @@ export class ForgotPasswordBusiness {
       const user = await this.loginUserDatabase.findUser(email);
 
       if (!user) {
-        throw new Error("Email not found.");
+        throw new UserNotFound();
       }
       const generatedPassword =
         this.forgotPasswordDatabase.generateRandomPassword();

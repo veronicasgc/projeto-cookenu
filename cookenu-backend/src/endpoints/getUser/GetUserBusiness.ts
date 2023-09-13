@@ -1,14 +1,12 @@
 import { CustomError } from "../../error/CustomError";
 import { InvalidToken } from "../../error/CustomErrorToken";
 import { UserNotFound } from "../../error/CustomErrorUser";
-import { HashManager } from "../../services/HashManager";
 import { TokenGenerator } from "../../services/TokenGenerator";
 import { GetUserDatabase } from "./GetUserDatabase";
 
 export class GetUserBusiness {
   constructor(
     private readonly tokenGenerator: TokenGenerator,
-    private readonly hashManager: HashManager,
     private readonly getUserDatabase: GetUserDatabase
   ) {}
   

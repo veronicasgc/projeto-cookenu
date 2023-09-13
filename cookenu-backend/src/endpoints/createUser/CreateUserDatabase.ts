@@ -1,5 +1,4 @@
 import { BaseDatabase } from "../../data/BaseDatabase";
-import { UserDatabase } from "../../data/UserDatabase";
 import { CustomError } from "../../error/CustomError";
 import { user } from "../../models/User";
 

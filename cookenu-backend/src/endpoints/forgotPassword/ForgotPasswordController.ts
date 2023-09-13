@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
 import { ForgotPasswordBusiness } from "./ForgotPasswordBusiness";
-import { ForgotPasswordDatabase } from "./ForgotPasswordDatabase";
 
 export class ForgotPasswordController {
   constructor(
-    private readonly forgotPasswordBusiness: ForgotPasswordBusiness,
-    private readonly forgotPasswordDatabase: ForgotPasswordDatabase
+    private readonly forgotPasswordBusiness: ForgotPasswordBusiness
   ) {}
   public forgotPassword = async (req: Request, res: Response) => {
     try {

@@ -13,7 +13,7 @@ export class GetRecipeDatabase extends BaseDatabase {
             .where('id', recipeId);
     
             if (searchResult.length === 0) {
-              return null; // Retorna null quando a receita não é encontrada
+              return null;
             }
       
           const recipeResult = {

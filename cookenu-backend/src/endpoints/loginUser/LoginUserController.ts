@@ -18,22 +18,23 @@ export class LoginUserController{
             password,
           };
          const token = await this.loginUserBusiness.login(input);
-         console.log("Generated token:", token);
+       
     
           let message = "Usuário logado!";
           let isGeneratedPassword = false;
     
           const user = await this.loginUserDatabase.findUser(email);
-          console.log("User in Controller:", user);
+         
           
-          if (user && password === user.generatedPassword) {
+          if (user && password === user.password) {
             message = "Usuário logado com senha gerada. Por favor, atualize sua senha.";
             isGeneratedPassword = true;
           }
+          
           res.status(200).send({ message, token, isGeneratedPassword });
     
         } catch (error: any) {
-          console.log("Controller error:", error);
+        
           res.status(400).send(error.message);
         }
       };

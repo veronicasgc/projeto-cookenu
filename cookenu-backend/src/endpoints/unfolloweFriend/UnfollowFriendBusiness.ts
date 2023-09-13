@@ -1,5 +1,5 @@
 import { CustomError } from "../../error/CustomError";
-import { invalidYouBeYourFriend } from "../../error/CustomErrorFriend";
+import { FriendNotFound, InvalidToBeYourFriend } from "../../error/CustomErrorFriend";
 import { InvalidToken } from "../../error/CustomErrorToken";
 import { FriendInsert, Friend } from "../../models/Friend";
 import { IdGenerator } from "../../services/IdGenerator";
@@ -19,7 +19,7 @@ export class UnfollowFriendBusiness {
   ): Promise<void> => {
     try {
       if (!input.userId2 || input.userId2.trim() === "") {
-        throw new Error("Invalid userToFollowId.");
+        throw new FriendNotFound();
       }
 
       const authenticatorData = this.tokenGenerator.tokenData(token);
@@ -31,7 +31,7 @@ export class UnfollowFriendBusiness {
       const userId1 = authenticatorData.id;
 
       if (userId1 === input.userId2) {
-        throw new invalidYouBeYourFriend();
+        throw new InvalidToBeYourFriend();
       }
 
       const existingRequest =

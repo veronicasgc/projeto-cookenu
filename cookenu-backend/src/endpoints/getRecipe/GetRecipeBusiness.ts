@@ -1,3 +1,4 @@
+import { RecipeNotFound } from "../../error/CustomErrorRecipes";
 import { InvalidToken } from "../../error/CustomErrorToken";
 import { TokenGenerator } from "../../services/TokenGenerator";
 import { GetRecipeDatabase } from "./GetRecipeDatabase";
@@ -21,7 +22,7 @@ export class GetRecipeBusiness {
       const result = await this.getRecipeDatabase.getRecipe(id);
 
       if (!result) {
-        throw new Error("Recipe not found.");
+        throw new RecipeNotFound();
       }
 
       return result;

@@ -1,6 +1,6 @@
 import { CustomError } from "../../error/CustomError";
+import { RecipeNotCreated } from "../../error/CustomErrorRecipes";
 import { InvalidToken } from "../../error/CustomErrorToken";
-import { MissingFieldsToComplete } from "../../error/MissingFieldsComplete";
 import { RecipeInputDTO, Recipe } from "../../models/Recipe";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenGenerator } from "../../services/TokenGenerator";
@@ -21,7 +21,7 @@ export class CreateRecipeBusiness {
           }
     
           if (!input.title || !input.description) {
-            throw new MissingFieldsToComplete();
+            throw new RecipeNotCreated();
           }
           
           await this.createRecipeDatabase.createRecipe(
